@@ -18,6 +18,8 @@ export type HeroParticles = {
   /** The hero's canvas host (.hero__canvas): its rect is where the wordmark sits on screen. */
   host: HTMLElement
   canvas: HTMLCanvasElement
+  /** True once the hero's scroll sequence has the wordmark fully formed - the journey never takes over before that. */
+  formed: () => boolean
 }
 
 let current: HeroParticles | null = null

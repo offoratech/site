@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import '@fontsource-variable/plus-jakarta-sans'
 import '@fontsource/space-grotesk/700.css'
 import '@fontsource-variable/unbounded'
@@ -8,7 +8,8 @@ import { Hero } from './Hero'
 import { Difference } from './Difference'
 import { Clients } from './Clients'
 import { Testimonials } from './Testimonials'
-import { ParticleJourney, webglAvailable } from './ParticleJourney'
+import { ParticleJourney } from './ParticleJourney'
+import { webglAvailable } from './webgl'
 import ExpertiseList from '../components/home/ExpertiseList.jsx'
 
 /**
@@ -21,6 +22,20 @@ export default function OfforaHome() {
   // small in-flow particle spots on phones are reserved up front (no layout
   // shift) and never left as empty gaps without WebGL or with reduced motion.
   const [journeyOn] = useState(() => webglAvailable() && window.matchMedia(MOTION_OK).matches)
+
+  // Always open at the top. The hero is a scroll-driven sequence: a
+  // browser-restored scroll position (phones restore it on refresh, after
+  // the router's own scroll-to-top) drops the visitor mid-dissolve with a
+  // half-faded headline.
+  useLayoutEffect(() => {
+    if (!('scrollRestoration' in history)) return
+    const prev = history.scrollRestoration
+    history.scrollRestoration = 'manual'
+    window.scrollTo(0, 0)
+    return () => {
+      history.scrollRestoration = prev
+    }
+  }, [])
 
   useGSAP(
     () => {

@@ -178,6 +178,9 @@ export class JourneyField {
     this.geo.dispose()
     this.material.dispose()
     this.renderer.dispose()
+    // Release the GL context now rather than whenever GC gets to it - live
+    // contexts are capped per tab, and the oldest is killed past the cap.
+    this.renderer.forceContextLoss()
     this.renderer.domElement.remove()
   }
 }

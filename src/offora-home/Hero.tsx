@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP, MOTION_OK, EASE } from './gsap'
 import type { OneTeamField } from './OneTeamField'
 import { publishHeroParticles } from './heroParticles'
+import { webglAvailable } from './webgl'
 import { contactEmail } from './content'
 import { Eyebrow } from './Eyebrow'
 import { Arrow } from './Arrow'
@@ -14,15 +15,6 @@ import logoWordmarkUrl from '../assets/offora-logo-wordmark.png'
 // ring. Flip to `false` to instantly revert to the original torus if the
 // logo doesn't read well as particles - no other change needed.
 const LOGO_SHAPE = true
-
-function webglAvailable() {
-  try {
-    const c = document.createElement('canvas')
-    return !!(c.getContext('webgl2') || c.getContext('webgl'))
-  } catch {
-    return false
-  }
-}
 
 export function Hero() {
   const root = useRef<HTMLElement>(null)
@@ -80,7 +72,7 @@ export function Hero() {
       // Hand the formed wordmark to the page-wide particle journey, which
       // carries these same particles on through the rest of the page.
       const { wordmark, ...shared } = f.shared
-      const published = wordmark ? { ...shared, wordmark } : null
+      const published = wordmark ? { ...shared, wordmark, formed: () => f.wordmark >= 0.98 } : null
       if (published) publishHeroParticles(published)
       cleanup = () => {
         if (published) publishHeroParticles(null)

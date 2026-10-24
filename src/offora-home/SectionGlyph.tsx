@@ -2,14 +2,8 @@ import { useEffect, useRef } from 'react'
 import type { GlyphField as GlyphFieldType } from './GlyphField'
 import { gsap, useGSAP, EASE } from './gsap'
 
-export function webglAvailable() {
-  try {
-    const c = document.createElement('canvas')
-    return !!(c.getContext('webgl2') || c.getContext('webgl'))
-  } catch {
-    return false
-  }
-}
+export { webglAvailable } from './webgl'
+import { webglAvailable } from './webgl'
 
 type GetPoints = (count: number) => Float32Array | null | Promise<Float32Array | null>
 

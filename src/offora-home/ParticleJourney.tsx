@@ -4,15 +4,7 @@ import { onHeroParticles, type HeroParticles } from './heroParticles'
 import { fontTextPoints, loadImagePoints, svgStrokePoints } from './particlePoints'
 import logoWordmarkUrl from '../assets/offora-logo-wordmark.png'
 import type { JourneyField, StopFrame } from './JourneyField'
-
-export function webglAvailable() {
-  try {
-    const c = document.createElement('canvas')
-    return !!(c.getContext('webgl2') || c.getContext('webgl'))
-  } catch {
-    return false
-  }
-}
+import { webglAvailable } from './webgl'
 
 // Lucide's path data (v1.31.0) for Code2 (code-xml) and Megaphone - the
 // same icons the Services rows use.
@@ -44,8 +36,10 @@ function servicesPoints(n: number) {
 
 // Section shapes are sampled at a much finer grid than the hero's default
 // (180px) so their edges stay crisp; the hero-sized default leaves each
-// source pixel a visible clump once spread across a small anchor.
-const SHARP = 480
+// source pixel a visible clump once spread across a small anchor. Phones
+// draw them far smaller, so a coarser grid is just as sharp there and
+// keeps start-up cheap.
+const SHARP = window.innerWidth < 768 ? 300 : 480
 
 /** Half-size of a point cloud's actual footprint, for fitting it to its anchor box. */
 function bounds(pts: Float32Array): [number, number] {
@@ -92,85 +86,102 @@ function runJourney(layer: HTMLElement, hero: HeroParticles, isCurrent: () => bo
   const root = layer.closest('.offora-home') ?? document
   const anchors = Array.from(root.querySelectorAll<HTMLElement>('[data-journey-stop]')).filter((el) => SHAPES[el.dataset.journeyStop!])
 
-  Promise.all([
-    import('./JourneyField'),
-    Promise.all(anchors.map((el) => SHAPES[el.dataset.journeyStop!].points(hero.count, hero))),
-  ]).then(([{ JourneyField }, sampled]) => {
-    if (disposed || !isCurrent()) return
-    const shapes = [hero.wordmark]
-    const stops: Stop[] = []
-    anchors.forEach((el, i) => {
-      const pts = sampled[i]
-      if (!pts || pts.length !== hero.count * 3) return
-      stops.push({ el, shape: shapes.length, extent: SHAPES[el.dataset.journeyStop!].extent ?? bounds(pts) })
-      shapes.push(pts)
-    })
-    if (!stops.length) return
-    const f = new JourneyField(layer, { rand: hero.rand, start: hero.start, shapes })
-    field = f
-
-    let pNow = 0
-    let shown = false
-    let heroHidden = false
-    const tick = () => {
-      raf = requestAnimationFrame(tick)
-      const vh = window.innerHeight
-
-      // Every anchor is measured fresh each frame, so section pins and
-      // layout shifts are followed for free. `c` is how far a stop is from
-      // being "home": for the hero, its top (0 while it's sticky); for the
-      // sections, their anchor's distance from the viewport's centre line.
-      const hr = hero.host.getBoundingClientRect()
-      const k0 = heroScale(hr.width, hr.height)
-      const live: Live[] = [{ shape: 0, c: hr.top, hold: 0, x: hr.left + hr.width / 2, y: hr.top + hr.height / 2, k: k0, d: 1 }]
-      for (const s of stops) {
-        const r = s.el.getBoundingClientRect()
-        if (!r.width || !r.height) continue // hidden at this breakpoint - skip this stop
-        const k = Math.min(r.width / 2 / s.extent[0], r.height / 2 / s.extent[1])
-        const y = r.top + r.height / 2
-        live.push({ shape: s.shape, c: y - vh / 2, hold: vh * 0.18, x: r.left + r.width / 2, y, k, d: Math.min(1, Math.max(0.08, 1.8 * (k / k0) ** 2)) })
-      }
-
-      // Journey position: n.t = between stop n and n+1. Each section shape
-      // holds fully formed for a short band around the centre line.
-      let p = live.length - 1
-      for (let j = 0; j < live.length - 1; j++) {
-        const a = live[j]
-        const b = live[j + 1]
-        if (b.c <= 0) continue
-        const gap = b.c - a.c
-        const ha = Math.min(a.hold, gap * 0.25)
-        const hb = Math.min(b.hold, gap * 0.25)
-        p = j + clamp01((-a.c - ha) / Math.max(gap - ha - hb, 1))
-        break
-      }
-
-      // The hero draws its own particles until it un-sticks; from then on
-      // this layer takes the same particles over.
-      const released = hr.top < -0.5
-      pNow = released ? pNow + (p - pNow) * 0.1 : 0
-      const seg = Math.max(0, Math.min(Math.floor(pNow), live.length - 2))
-      const t = live.length > 1 ? clamp01(pNow - seg) : 0
-      const a = live[seg]
-      const b = live[Math.min(seg + 1, live.length - 1)]
-      const onScreen = Math.max(a.y, b.y) > -vh * 0.5 && Math.min(a.y, b.y) < vh * 1.5
-      const show = released && onScreen
-
-      if (show !== shown) {
-        shown = show
-        layer.style.visibility = show ? 'visible' : 'hidden'
-      }
-      if (released !== heroHidden) {
-        heroHidden = released
-        hero.canvas.style.opacity = released ? '0' : ''
-      }
-      if (!show) return
-      // OneTeamField breathes 0.045 world units; in px that depends on the hero's height.
-      const breath = (0.045 * hr.height) / (2 * Math.tan((35 * Math.PI) / 360) * 14)
-      f.render(a.shape, b.shape, t, a, b, breath, k0)
-    }
-    raf = requestAnimationFrame(tick)
+  // Nothing here is visible until the hero's sequence is scrolled through,
+  // so wait for the browser to go idle: sampling the shapes and compiling
+  // a second WebGL program during the hero's entrance stalls it on phones.
+  const idle = new Promise<void>((resolve) => {
+    if ('requestIdleCallback' in window) window.requestIdleCallback(() => resolve(), { timeout: 2500 })
+    else setTimeout(resolve, 1200)
   })
+
+  idle
+    .then(() =>
+      disposed
+        ? null
+        : Promise.all([
+            import('./JourneyField'),
+            Promise.all(anchors.map((el) => SHAPES[el.dataset.journeyStop!].points(hero.count, hero))),
+          ]),
+    )
+    .then((loaded) => {
+      if (!loaded || disposed || !isCurrent()) return
+      const [{ JourneyField }, sampled] = loaded
+      const shapes = [hero.wordmark]
+      const stops: Stop[] = []
+      anchors.forEach((el, i) => {
+        const pts = sampled[i]
+        if (!pts || pts.length !== hero.count * 3) return
+        stops.push({ el, shape: shapes.length, extent: SHAPES[el.dataset.journeyStop!].extent ?? bounds(pts) })
+        shapes.push(pts)
+      })
+      if (!stops.length) return
+      const f = new JourneyField(layer, { rand: hero.rand, start: hero.start, shapes })
+      field = f
+
+      let pNow = 0
+      let shown = false
+      let heroHidden = false
+      const tick = () => {
+        raf = requestAnimationFrame(tick)
+        const vh = window.innerHeight
+
+        // Every anchor is measured fresh each frame, so section pins and
+        // layout shifts are followed for free. `c` is how far a stop is from
+        // being "home": for the hero, its top (0 while it's sticky); for the
+        // sections, their anchor's distance from the viewport's centre line.
+        const hr = hero.host.getBoundingClientRect()
+        const k0 = heroScale(hr.width, hr.height)
+        const live: Live[] = [{ shape: 0, c: hr.top, hold: 0, x: hr.left + hr.width / 2, y: hr.top + hr.height / 2, k: k0, d: 1 }]
+        for (const s of stops) {
+          const r = s.el.getBoundingClientRect()
+          if (!r.width || !r.height) continue // hidden at this breakpoint - skip this stop
+          const k = Math.min(r.width / 2 / s.extent[0], r.height / 2 / s.extent[1])
+          const y = r.top + r.height / 2
+          live.push({ shape: s.shape, c: y - vh / 2, hold: vh * 0.18, x: r.left + r.width / 2, y, k, d: Math.min(1, Math.max(0.08, 1.8 * (k / k0) ** 2)) })
+        }
+
+        // Journey position: n.t = between stop n and n+1. Each section shape
+        // holds fully formed for a short band around the centre line.
+        let p = live.length - 1
+        for (let j = 0; j < live.length - 1; j++) {
+          const a = live[j]
+          const b = live[j + 1]
+          if (b.c <= 0) continue
+          const gap = b.c - a.c
+          const ha = Math.min(a.hold, gap * 0.25)
+          const hb = Math.min(b.hold, gap * 0.25)
+          p = j + clamp01((-a.c - ha) / Math.max(gap - ha - hb, 1))
+          break
+        }
+
+        // The hero draws its own particles until it un-sticks *and* its
+        // wordmark is formed; only then does this layer take the same
+        // particles over - never mid-sequence (e.g. a restored scroll position
+        // on load), where it would draw a wordmark over the headline.
+        const released = hr.top < -0.5 && hero.formed()
+        pNow = released ? pNow + (p - pNow) * 0.1 : 0
+        const seg = Math.max(0, Math.min(Math.floor(pNow), live.length - 2))
+        const t = live.length > 1 ? clamp01(pNow - seg) : 0
+        const a = live[seg]
+        const b = live[Math.min(seg + 1, live.length - 1)]
+        const onScreen = Math.max(a.y, b.y) > -vh * 0.5 && Math.min(a.y, b.y) < vh * 1.5
+        const show = released && onScreen
+
+        if (show !== shown) {
+          shown = show
+          layer.style.visibility = show ? 'visible' : 'hidden'
+        }
+        if (released !== heroHidden) {
+          heroHidden = released
+          hero.canvas.style.opacity = released ? '0' : ''
+        }
+        if (!show) return
+        // OneTeamField breathes 0.045 world units; in px that depends on the hero's height.
+        const breath = (0.045 * hr.height) / (2 * Math.tan((35 * Math.PI) / 360) * 14)
+        f.render(a.shape, b.shape, t, a, b, breath, k0)
+      }
+      raf = requestAnimationFrame(tick)
+    })
 
   return () => {
     disposed = true
