@@ -1,0 +1,889 @@
+/* Offora Tech home page. Every selector is scoped under .offora-home so it cannot affect the host site.
+   Set --header-h on .offora-home to your fixed navbar's height (0px if none). */
+
+/* Tokens + page surface (applied to the .offora-home wrapper itself) */
+.offora-home {
+  --bg: #0a0a0b;
+  --bg-2: #131315;
+  --card: #17171a;
+  --border: #2a2a2e;
+  --border-strong: #3a3a3f;
+  --text: #e9e7df;
+  --text-2: #8a8a8f;
+  --accent: #7ed957;
+  --light: #f5f4ef;
+  --on-accent: #0a0a0b;
+
+  --f-body: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --f-display: 'Space Grotesk', 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+  --f-num: 'Unbounded Variable', 'Unbounded', 'Plus Jakarta Sans Variable', sans-serif;
+
+  --maxw: 1440px;
+  --gutter: clamp(16px, 4vw, 56px);
+  --section-y: clamp(88px, 12vw, 176px);
+  /* Height of the host site's fixed navbar (0px if none). The hero and sticky cards clear it. */
+  --header-h: 80px;
+  --radius: 4px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: dark;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* clip (not hidden) so position: sticky inside still works */
+  overflow-x: clip;
+}
+
+/* Base (scoped resets) */
+.offora-home *,
+.offora-home *::before,
+.offora-home *::after {
+  box-sizing: border-box;
+}
+.offora-home img,
+.offora-home video {
+  display: block;
+  max-width: 100%;
+}
+.offora-home h1,
+.offora-home h2,
+.offora-home h3,
+.offora-home h4,
+.offora-home p,
+.offora-home figure,
+.offora-home blockquote,
+.offora-home dl,
+.offora-home dd,
+.offora-home ol,
+.offora-home ul {
+  margin: 0;
+}
+.offora-home ol,
+.offora-home ul {
+  list-style: none;
+  padding: 0;
+}
+.offora-home h1,
+.offora-home h2,
+.offora-home h3,
+.offora-home h4 {
+  font-weight: 600;
+  text-wrap: balance;
+}
+.offora-home p {
+  text-wrap: pretty;
+}
+.offora-home a {
+  color: inherit;
+  text-decoration: none;
+}
+.offora-home ::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.offora-home :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.offora-home .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.offora-home .wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.offora-home .arrow {
+  flex: none;
+  transition: transform 0.35s var(--ease);
+}
+
+/* Eyebrow [ LABEL ] */
+.offora-home .eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  margin-bottom: clamp(20px, 2.4vw, 32px);
+}
+.offora-home .eyebrow__bracket {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 1.15em;
+  letter-spacing: 0;
+}
+.offora-home .eyebrow__bracket:first-child {
+  margin-right: 0.7em;
+}
+.offora-home .eyebrow__bracket:last-child {
+  margin-left: 0.5em;
+}
+.offora-home .eyebrow__label {
+  color: var(--text-2);
+}
+
+/* Buttons */
+.offora-home .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: var(--f-body);
+  font-size: 0.975rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    border-color 0.25s var(--ease);
+}
+.offora-home .btn:hover .arrow,
+.offora-home .btn:focus-visible .arrow {
+  transform: translateX(4px);
+}
+.offora-home .btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.offora-home .btn--primary:hover {
+  background: var(--text);
+}
+
+/* Hero */
+.offora-home .hero-pin-spacer {
+  position: relative;
+  /* No fixed height here on purpose: the extra scroll room this needs to
+     hold the sticky hero in place is only added via JS (Hero.tsx), and
+     only once the scroll-driven particle sequence actually confirms it
+     will run (WebGL available, motion not reduced). Without that extra
+     height, `position: sticky` on .hero below is a no-op - it has nowhere
+     to "stick" beyond its own natural position - so a no-WebGL or
+     reduced-motion visitor scrolls straight past with no dead zone. */
+}
+.offora-home .hero {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: calc(var(--header-h) + clamp(28px, 6vh, 72px));
+  background: var(--bg);
+  overflow: hidden;
+}
+.offora-home .hero__content,
+.offora-home .hero__foot {
+  position: relative;
+  z-index: 2;
+}
+.offora-home .hero__title {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(3.25rem, min(10.2vw, 17vh), 10rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  margin-left: -0.04em;
+}
+.offora-home .hero__title .line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.04em;
+}
+.offora-home .hero__title .line > span {
+  display: inline-block;
+}
+.offora-home .hero__title .line--accent {
+  color: var(--accent);
+}
+.offora-home .hero__title .char {
+  will-change: transform;
+}
+.offora-home .hero__rule {
+  height: 1px;
+  background: var(--border);
+  margin-block: clamp(28px, 4vw, 48px);
+}
+.offora-home .hero__aside {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 24px;
+  row-gap: 28px;
+  align-items: start;
+}
+.offora-home .hero__caps {
+  grid-column: 1 / span 4;
+  display: grid;
+  gap: 14px;
+  font-size: 0.9375rem;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+.offora-home .hero__caps li {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+}
+.offora-home .hero__caps span {
+  color: var(--text);
+  font-weight: 600;
+}
+.offora-home .hero__lead {
+  grid-column: 6 / span 6;
+  font-size: clamp(1.125rem, 1.55vw, 1.375rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  max-width: 38ch;
+}
+.offora-home .hero__ctas {
+  grid-column: 6 / span 7;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.offora-home .hero__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: clamp(48px, 8vh, 96px);
+  padding-block: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--text-2);
+}
+.offora-home .hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.offora-home .hero__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.offora-home .hero__canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.offora-home .hero__tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform;
+}
+.offora-home .hero__tag-inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, calc(-50% - clamp(110px, 15vh, 170px)));
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--accent);
+  background: rgba(10, 10, 11, 0.7);
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+.offora-home .hero__finale {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 6.4vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.offora-home .hero__finale-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.offora-home .hero__finale-line {
+  display: block;
+  opacity: 0;
+}
+.offora-home .hero__finale-line--accent {
+  color: var(--accent);
+}
+.offora-home .localtime {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.offora-home .localtime__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-2);
+  flex: none;
+}
+.offora-home .localtime__dot.is-open {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(126, 217, 87, 0.16);
+}
+.offora-home .localtime__time {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 900px) {
+  .offora-home .hero__caps,
+.offora-home .hero__lead,
+.offora-home .hero__ctas {
+    grid-column: 1 / -1;
+  }
+  .offora-home .hero__caps {
+    order: 3;
+  }
+  .offora-home .hero__scroll {
+    display: none;
+  }
+  .offora-home .hero__tag-inner {
+    transform: translate(-50%, calc(-50% - 84px));
+  }
+}
+/* Phones (portrait): the two particle teams get their own band above the
+   headline instead of drawing over it; labels sit just above each cluster.
+   Matches OneTeamField's portrait test (aspect < 0.9). */
+.offora-home .hero__stage {
+  display: none;
+}
+@media (max-width: 820px) and (max-aspect-ratio: 9/10) {
+  .offora-home .hero--webgl {
+    padding-top: calc(var(--header-h) + 12px);
+  }
+  .offora-home .hero--webgl .hero__stage {
+    display: block;
+    height: clamp(130px, 22svh, 220px);
+    margin-bottom: 12px;
+  }
+  .offora-home .hero--webgl .hero__tag-inner {
+    transform: translate(-50%, calc(-100% - 4px));
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    padding: 4px 8px;
+  }
+  .offora-home .hero--webgl .hero__foot {
+    display: none;
+  }
+}
+/* Phones: drop the hero eyebrow's text but keep its space, so nothing below
+   moves up. Hides the inner spans, not the <p> - GSAP's autoAlpha writes
+   inline visibility on the <p> itself and would override this. */
+@media (max-width: 820px) and (max-aspect-ratio: 9/10) {
+  .offora-home .hero .eyebrow > * {
+    visibility: hidden;
+  }
+}
+@media (max-width: 820px) and (max-aspect-ratio: 9/10) and (max-height: 720px) {
+  .offora-home .hero--webgl .hero__caps {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .offora-home .hero__title {
+    /* "We market it." is the widest line (~5.8em); keep it inside the gutters. */
+    font-size: clamp(2.5rem, 14.5vw, 4.25rem);
+  }
+  .offora-home .hero__foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .offora-home .hero__ctas .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Sections — shared */
+.offora-home .section {
+  padding-block: var(--section-y);
+  border-top: 1px solid var(--border);
+}
+.offora-home .section-head {
+  margin-bottom: clamp(48px, 6vw, 88px);
+}
+.offora-home .section-title {
+  font-size: clamp(2rem, 4.4vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  max-width: 20ch;
+}
+.offora-home .section-intro {
+  margin-top: 24px;
+  max-width: 54ch;
+  font-size: clamp(1.0625rem, 1.3vw, 1.1875rem);
+  color: var(--text-2);
+}
+/* SplitText clips each line to mask the reveal; give descenders room inside the clip. */
+.offora-home .split-line-mask {
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+/* The difference */
+.offora-home .difference .section-title {
+  max-width: 26ch;
+  margin-bottom: clamp(48px, 6vw, 88px);
+}
+.offora-home .difference__pin {
+  padding-top: 8px;
+}
+.offora-home .difference__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 2vw, 24px);
+}
+.offora-home .difference__vs {
+  display: none;
+}
+@media (min-width: 821px) {
+  .offora-home .difference__vs {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+.offora-home .difference__col {
+  padding: clamp(28px, 3.4vw, 48px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.offora-home .difference__col--ours {
+  background: var(--card);
+}
+.offora-home .difference__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 28px;
+}
+.offora-home .difference__col--ours .difference__label {
+  color: var(--accent);
+}
+.offora-home .difference__verdict {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border-strong);
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+}
+.offora-home .difference__verdict--ours {
+  border-top-style: solid;
+  border-top-color: rgba(126, 217, 87, 0.35);
+  color: var(--accent);
+}
+.offora-home .flow {
+  position: relative;
+  padding-left: 40px;
+}
+.offora-home .flow__track {
+  position: absolute;
+  left: 7px;
+  top: 22px;
+  bottom: 22px;
+  width: 2px;
+  overflow: hidden;
+}
+.offora-home .flow--usual .flow__track {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow: visible;
+}
+.offora-home .flow__seg {
+  flex: 1;
+  width: 2px;
+  background: var(--border-strong);
+}
+.offora-home .flow--ours .flow__track {
+  background: var(--border);
+}
+.offora-home .flow__track-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+}
+.offora-home .flow li {
+  position: relative;
+  padding-block: 14px;
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+.offora-home .flow li::before {
+  content: '';
+  position: absolute;
+  left: -40px;
+  top: calc(14px + 0.4em);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--border-strong);
+}
+.offora-home .flow--usual li {
+  color: var(--text-2);
+}
+.offora-home .flow--ours li {
+  --node: 1;
+}
+.offora-home .flow--ours li::before {
+  background: color-mix(in srgb, var(--accent) calc(var(--node, 1) * 100%), var(--bg));
+  border-color: color-mix(in srgb, var(--accent) calc(var(--node, 1) * 100%), var(--border-strong));
+  box-shadow: 0 0 0 calc(var(--node, 1) * 5px) rgba(126, 217, 87, 0.14);
+}
+@media (max-width: 820px) {
+  .offora-home .difference__grid {
+    grid-template-columns: 1fr;
+  }
+  /* Phones: "VS" forms in its own small slot between the stacked columns. */
+  .offora-home.journey-on .difference__col {
+    order: 1;
+  }
+  .offora-home.journey-on .difference__vs {
+    display: block;
+    order: 2;
+    justify-self: center;
+    width: 64px;
+    height: 64px;
+  }
+  .offora-home.journey-on .difference__col--ours {
+    order: 3;
+  }
+}
+
+/* Clients: marquee + logo grid */
+.offora-home .marquee {
+  margin-block: clamp(8px, 2vw, 24px) clamp(56px, 7vw, 104px);
+  overflow: hidden;
+  user-select: none;
+}
+.offora-home .marquee__row + .marquee__row {
+  margin-top: 0.1em;
+}
+.offora-home .marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.offora-home .marquee__group {
+  display: flex;
+}
+.offora-home .marquee__item {
+  font-size: clamp(2.5rem, 7.2vw, 6.75rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+.offora-home .marquee__row:nth-child(2) .marquee__item {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-2);
+}
+.offora-home .marquee__sep {
+  color: var(--accent);
+  -webkit-text-stroke: 0;
+  margin-inline: 0.32em;
+  font-weight: 400;
+}
+.offora-home .clients {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(20px, 2vw, 28px) clamp(12px, 1.4vw, 20px);
+}
+.offora-home .clients__item {
+  perspective: 900px;
+}
+.offora-home .clients figure {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.offora-home .clients__logo {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--light);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.offora-home .clients__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  transition: transform 0.6s var(--ease);
+}
+.offora-home .clients__item:hover .clients__logo img {
+  transform: scale(1.05);
+}
+.offora-home .clients figcaption {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text-2);
+}
+@media (max-width: 1200px) {
+  .offora-home .clients {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (max-width: 860px) {
+  .offora-home .clients {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .offora-home .clients {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Particle journey (ParticleJourney.tsx): one fixed layer above the
+   curtain carrying the hero's particles through the page. The anchors below
+   are empty boxes that only mark where each section's shape forms; the
+   headings are capped at ~20ch, so the right side of .wrap is free. */
+.offora-home .journey {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  visibility: hidden;
+}
+.offora-home .journey canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.offora-home .services__glyph {
+  display: none;
+}
+/* Below 1240px: a small slot above the kicker. */
+.offora-home.journey-on .services__glyph {
+  display: block;
+  width: 144px;
+  height: 72px;
+  margin-bottom: 28px;
+}
+/* The Services heading runs to 48rem, so its icons only fit beside it wide. */
+@media (min-width: 1240px) {
+  .offora-home .services__glyph,
+  .offora-home.journey-on .services__glyph {
+    display: block;
+    margin: 0;
+    position: absolute;
+    right: 64px;
+    top: 176px;
+    width: 300px;
+    height: 150px;
+    pointer-events: none;
+  }
+}
+.offora-home .work__glyph,
+.offora-home .testimonials__glyph {
+  display: none;
+}
+/* Phones/tablets: small in-flow slots above the eyebrow (desktop rules below
+   switch them to absolute, beside the heading). */
+@media (max-width: 860px) {
+  .offora-home.journey-on .work__glyph {
+    display: block;
+    width: 200px;
+    height: 64px;
+    margin-bottom: 24px;
+  }
+}
+@media (max-width: 820px) {
+  .offora-home.journey-on .testimonials__glyph {
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+  }
+}
+@media (min-width: 861px) {
+  .offora-home .work__head {
+    position: relative;
+  }
+  .offora-home .work__glyph {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
+    width: 320px;
+    height: 120px;
+    pointer-events: none;
+  }
+}
+@media (min-width: 821px) {
+  .offora-home .testimonials__head {
+    position: relative;
+  }
+  .offora-home .testimonials__glyph {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+  }
+}
+
+/* Testimonials: sticky stacked cards */
+.offora-home .testimonials .section-head {
+  margin-bottom: clamp(24px, 3vw, 40px);
+}
+.offora-home .quote blockquote {
+  margin: 0;
+}
+.offora-home .quote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+.offora-home .quote__org {
+  font-weight: 600;
+}
+.offora-home .quote__role {
+  color: var(--text-2);
+}
+.offora-home .stack {
+  display: grid;
+  gap: clamp(20px, 3vw, 40px);
+}
+.offora-home .stack__card {
+  position: sticky;
+  /* Clear the floating navbar in its scrolled state (12px margin + 80px bar
+     + 2px border = 94px), which reaches lower than --header-h. */
+  top: calc(94px + 24px + var(--i) * 14px);
+}
+.offora-home .stack__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: min(60vh, 520px);
+  padding: clamp(28px, 5vw, 72px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transform-origin: 50% 0;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+/* Dims a card as the next one covers it (opacity driven from Testimonials.tsx). */
+.offora-home .stack__shade {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+.offora-home .stack__inner.quote--featured {
+  background: var(--light);
+  color: var(--bg);
+  border-color: var(--light);
+}
+.offora-home .stack__inner.quote--featured .quote__role,
+.offora-home .stack__inner.quote--featured .stack__count {
+  color: #55555a;
+}
+.offora-home .stack__inner blockquote p {
+  font-size: clamp(1.5rem, 3.4vw, 3.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  max-width: 30ch;
+}
+.offora-home .stack__count {
+  font-family: var(--f-num);
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+}
+/* Phones: a card taller than the space under the navbar would have its
+   attribution covered by the next card before it's ever seen. */
+@media (max-width: 600px) {
+  .offora-home .stack__inner {
+    min-height: min(50svh, 420px);
+    gap: 28px;
+  }
+  .offora-home .stack__inner blockquote p {
+    font-size: clamp(1.25rem, 5.6vw, 1.5rem);
+    line-height: 1.2;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .offora-home *,
+.offora-home *::before,
+.offora-home *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  .offora-home .hero__finale {
+    display: none;
+  }
+}

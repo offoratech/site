@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MAVERICK — Break Through</title>
+  <meta name="description" content="MAVERICK. Futuristic footwear engineered layer by layer." />
+  <meta name="theme-color" content="#050607" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="preload" as="image" href="sneaker.png" />
+  <link rel="preload" as="image" href="split_1.png" />
+  <link rel="preload" as="image" href="split_2.png" />
+  <link rel="preload" as="image" href="split_3.png" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="is-intro">
+
+  <!-- ============ INTRO: video → wall break ============ -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <video class="intro__video" id="introVideo" src="video.mp4" muted playsinline preload="auto"></video>
+
+    <div class="wall" id="wall">
+      <div class="wall__frame" id="wallFrame">
+        <img class="wall__piece wall__piece--1" src="split_1.png" alt="" />
+        <img class="wall__piece wall__piece--2" src="split_2.png" alt="" />
+        <img class="wall__piece wall__piece--3" src="split_3.png" alt="" />
+      </div>
+    </div>
+
+    <canvas class="intro__debris" id="debris"></canvas>
+    <div class="intro__flash" id="flash"></div>
+
+    <button class="intro__skip" id="skipIntro" type="button">Skip intro <span>→</span></button>
+  </div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <a class="nav__logo" href="#top" aria-label="Maverick home">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 32 L12 8 L20 22 L28 8 L36 32" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="bevel"/></svg>
+      <span>MAVERICK</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#top">Drop 001</a>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#top">Lab</a>
+      <a href="#top">Culture</a>
+    </nav>
+    <a class="nav__cta" href="#anatomy"><span class="dot"></span>Cop the drop</a>
+  </header>
+
+  <main id="top">
+    <!-- One long scroll scene. Its sticky stage holds the hero and the anatomy
+         layers so the sneaker can travel between them as one continuous shot. -->
+    <section class="scene" id="scene">
+      <div class="stage" id="stage">
+
+        <!-- Atmosphere (shared by both sections) -->
+        <div class="atmo">
+          <div class="atmo__base"></div>
+          <div class="atmo__beam"></div>
+          <div class="atmo__glow atmo__glow--hero"></div>
+          <div class="atmo__glow atmo__glow--anat"></div>
+          <div class="atmo__grid" id="grid"></div>
+          <canvas class="atmo__smoke" id="smoke"></canvas>
+          <div class="atmo__floor"></div>
+          <div class="atmo__vignette"></div>
+          <div class="atmo__grain"></div>
+        </div>
+
+        <!-- ===== 01 HERO layer ===== -->
+        <div class="hero" id="hero">
+          <h1 class="hero__word" id="heroWord" aria-label="Maverick">
+            <span>M</span><span>A</span><span>V</span><span>E</span><span>R</span><span>I</span><span>C</span><span>K</span>
+          </h1>
+
+          <div class="hero__ui" id="heroUi">
+            <div class="hero__meta hero__meta--tl">
+              <span class="mono">// DROP 001</span>
+              <span class="mono dim">EXO-RUNNER MK.I</span>
+            </div>
+
+            <div class="hero__copy">
+              <p class="eyebrow"><span class="pulse"></span>Now breaking through</p>
+              <p class="hero__tag">Built different.<br /><em>Built to break walls.</em></p>
+              <div class="hero__actions">
+                <a class="btn btn--solid" href="#anatomy">Explore the build</a>
+                <a class="btn btn--ghost" href="#top">Join the waitlist</a>
+              </div>
+            </div>
+
+            <div class="hero__specs">
+              <div><span class="mono dim">Weight</span><strong>312<small>g</small></strong></div>
+              <div><span class="mono dim">Energy return</span><strong>87<small>%</small></strong></div>
+              <div><span class="mono dim">Pulse cells</span><strong>03</strong></div>
+            </div>
+
+            <div class="hero__scroll">
+              <span class="mono">Scroll</span>
+              <i></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 02 ANATOMY layer ===== -->
+        <div class="anat" id="anatomy">
+          <div class="anat__head" id="anatHead">
+            <p class="eyebrow"><span class="idx">02</span>About / Anatomy</p>
+            <h2 class="anat__title">Five layers.<br /><span class="outline">Zero</span> compromise.</h2>
+            <p class="anat__lede">Every MAVERICK is engineered from the inside out. Scroll to strip it down: no filler, no fluff — just five layers doing the most.</p>
+          </div>
+
+          <div class="anat__hud" id="anatHud">
+            <div class="ring ring--a"></div>
+            <div class="ring ring--b"></div>
+            <div class="ring ring--c"></div>
+          </div>
+
+          <div class="anat__progress" id="anatProgress" aria-hidden="true">
+            <span class="mono">Layer</span>
+            <strong id="layerCount">00</strong>
+            <span class="mono dim">/ 05</span>
+            <div class="anat__bar"><i id="layerBar"></i></div>
+          </div>
+
+          <div class="anat__stats" id="anatStats">
+            <div><strong data-count="312">0</strong><span class="mono dim">grams, total</span></div>
+            <div><strong data-count="87">0</strong><span class="mono dim">% energy return</span></div>
+            <div><strong data-count="5">0</strong><span class="mono dim">engineered layers</span></div>
+          </div>
+        </div>
+
+        <!-- ===== The sneaker (travels hero → anatomy) ===== -->
+        <div class="shoe" id="shoe">
+          <div class="shoe__flip" id="shoeFlip">
+            <div class="shoe__tilt" id="shoeTilt">
+              <div class="shoe__float">
+                <img class="shoe__img" src="sneaker.png" alt="MAVERICK Exo-Runner sneaker" />
+              </div>
+            </div>
+          </div>
+          <div class="shoe__shadow"></div>
+        </div>
+
+        <!-- ===== Exploded view ===== -->
+        <div class="parts" id="parts" aria-label="Sneaker anatomy, five layers">
+          <div class="scan" id="scan"></div>
+
+          <div class="layer" data-layer="5">
+            <img src="part_5.png" alt="Layer 05: Neuro-Foam insole" />
+            <div class="tag">
+              <i class="tag__line"></i>
+              <div class="tag__body">
+                <span class="tag__no">05</span>
+                <h3>Neuro-Foam Footbed</h3>
+                <p>Memory-mapped insole that learns your stride.</p>
+              </div>
+            </div>
+          </div>
+          <div class="layer" data-layer="4">
+            <img src="part_4.png" alt="Layer 04: Pulse Cell cushioning pods" />
+            <div class="tag">
+              <i class="tag__line"></i>
+              <div class="tag__body">
+                <span class="tag__no">04</span>
+                <h3>Pulse Cells</h3>
+                <p>Three lit air pods. Impact in, energy out.</p>
+              </div>
+            </div>
+          </div>
+          <div class="layer" data-layer="3">
+            <img src="part_3.png" alt="Layer 03: Carbon chassis cage" />
+            <div class="tag">
+              <i class="tag__line"></i>
+              <div class="tag__body">
+                <span class="tag__no">03</span>
+                <h3>Carbon Chassis</h3>
+                <p>Torsion-locked frame. Zero wobble, all control.</p>
+              </div>
+            </div>
+          </div>
+          <div class="layer" data-layer="2">
+            <img src="part_2.png" alt="Layer 02: Exo-shell wing frame" />
+            <div class="tag">
+              <i class="tag__line"></i>
+              <div class="tag__body">
+                <span class="tag__no">02</span>
+                <h3>Exo-Shell</h3>
+                <p>Moulded TPU armour wrapping heel to toe.</p>
+              </div>
+            </div>
+          </div>
+          <div class="layer" data-layer="1">
+            <img src="part_1.png" alt="Layer 01: Knit upper with dial lock" />
+            <div class="tag">
+              <i class="tag__line"></i>
+              <div class="tag__body">
+                <span class="tag__no">01</span>
+                <h3>Exo-Knit Upper</h3>
+                <p>Adaptive knit, dial-lock fit, heel-strap ID plate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="after">
+      <p class="mono dim">// More drops loading — next chapter coming soon.</p>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

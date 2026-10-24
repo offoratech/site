@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-space: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-unbounded: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0a0a0b;
+  --color-ink-soft: #131315;
+  --color-panel: #17171a;
+  --color-line: #2a2a2e;
+  --color-paper: #f5f4ef;
+  --color-bone: #e9e7df;
+  --color-mute: #8a8a8f;
+
+  --color-offora-green-50: #f3fcee;
+  --color-offora-green-100: #e3f8d6;
+  --color-offora-green-200: #c7f0ad;
+  --color-offora-green-300: #a6e67f;
+  --color-offora-green-400: #8fde68;
+  --color-offora-green-500: #7ed957;
+  --color-offora-green-600: #63b940;
+  --color-offora-green-700: #4c9430;
+  --color-offora-green-800: #3a7325;
+  --color-offora-green-900: #2c571c;
+
+  --color-brand: var(--color-offora-green-500);
+  --color-brand-dim: var(--color-offora-green-600);
+  --color-brand-soft: var(--color-offora-green-200);
+
+  --animate-marquee: marquee 32s linear infinite;
+  --animate-marquee-fast: marquee 22s linear infinite;
+  --animate-marquee-slow: marquee 60s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-grid: grid 14s linear infinite;
+
+  --ease-offora: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes grid {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-ink);
+    scrollbar-color: var(--color-line) var(--color-ink);
+    scrollbar-width: thin;
+  }
+
+  body {
+    @apply bg-ink text-bone antialiased;
+    margin: 0;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-ink);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand-dim);
+  }
+
+  .cursor-none-desktop,
+  .cursor-none-desktop a,
+  .cursor-none-desktop button {
+    cursor: none;
+  }
+}
+
+@layer utilities {
+  .text-outline {
+    -webkit-text-stroke: 1.5px var(--color-bone);
+    color: transparent;
+  }
+
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .container-offora {
+    @apply mx-auto w-full max-w-[1440px] px-6 sm:px-10 lg:px-16;
+  }
+
+  /* Liquid-glass approximation for the mobile bottom nav only - real
+     Apple Liquid Glass is an OS-level render effect with no CSS equivalent,
+     this layers blur + saturation + an inset highlight to get close. */
+  .mobile-glass-nav {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mobile-glass-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      radial-gradient(65% 60% at 12% -10%, rgba(255, 255, 255, 0.85), transparent 60%),
+      radial-gradient(55% 55% at 88% -15%, rgba(255, 255, 255, 0.55), transparent 60%),
+      radial-gradient(80% 50% at 50% 115%, rgba(126, 217, 87, 0.22), transparent 65%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 55%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .mobile-glass-nav {
+      background-color: var(--color-ink-soft) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
+}
