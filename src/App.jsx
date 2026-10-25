@@ -6,6 +6,7 @@ import About from './pages/About.jsx'
 import Services from './pages/Services.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Contact from './pages/Contact.jsx'
+import Founder from './pages/Founder.jsx'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -18,6 +19,8 @@ function AnimatedRoutes() {
         <Route path="/services" element={<Services />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/prabu" element={<Founder memberId="hariharaprabu" />} />
+        <Route path="/mugilan" element={<Founder memberId="mugilan" />} />
       </Routes>
     </AnimatePresence>
   )

@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { Mail, Phone, ArrowUpRight } from 'lucide-react'
 import { team } from '../../data/team.js'
 import TextReveal from '../ui/TextReveal.jsx'
 import Magnetic from '../ui/Magnetic.jsx'
 import BracketFrame from '../ui/BracketFrame.jsx'
 import Kicker from '../ui/Kicker.jsx'
+
+const profilePath = { hariharaprabu: '/prabu', mugilan: '/mugilan' }
 
 export default function TeamSection() {
   return (
@@ -34,15 +37,17 @@ export default function TeamSection() {
                 className="pointer-events-none absolute -bottom-6 -right-6 -z-10 h-full w-full rounded-3xl bg-brand/[0.06]"
               />
 
-              <BracketFrame spread>
-                <div className="aspect-square w-full overflow-hidden rounded-3xl bg-paper shadow-[0_30px_60px_-30px_rgba(0,0,0,0.7)]">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                  />
-                </div>
-              </BracketFrame>
+              <Link to={profilePath[member.id]} data-cursor-hover aria-label={`View ${member.name}'s profile`}>
+                <BracketFrame spread>
+                  <div className="aspect-square w-full overflow-hidden rounded-3xl bg-paper shadow-[0_30px_60px_-30px_rgba(0,0,0,0.7)]">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                    />
+                  </div>
+                </BracketFrame>
+              </Link>
 
               <span className="font-display absolute -top-9 left-0 flex items-center gap-1 text-xs text-mute">
                 <span className="text-brand">[</span>
@@ -56,7 +61,9 @@ export default function TeamSection() {
                 {member.role}
               </p>
               <h3 className="font-display mt-3 text-4xl font-semibold uppercase leading-[1.02] tracking-tight text-bone sm:text-5xl lg:text-6xl">
-                {member.name}
+                <Link to={profilePath[member.id]} data-cursor-hover className="transition-colors hover:text-brand">
+                  {member.name}
+                </Link>
               </h3>
               <p className="mt-6 max-w-md text-base leading-relaxed text-mute">{member.bio}</p>
 
